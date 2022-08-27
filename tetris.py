@@ -1,10 +1,11 @@
 import random
 
-colors = ['red','blue','green','purple','orange','pink','yellow']
+colors = ['red','blue','green','purple','orange']
 
 class Figure:
     x=0
     y=0
+    i=0
     figures = [
         [[1,5,9,13],[4,5,6,7]], #rod
         [[4,5,9,10],[2,5,6,9]], #z shape
@@ -25,8 +26,16 @@ class Figure:
     def image(self):
         return self.figures[self.type][self.rotation]
 
-    def rotate(self):
+    def rotate(self): #rotation is an indicde number for the j figures[i][j] columns
         self.rotation = (self.rotation+1) % len(self.figures[self.type]) #easy way of traversing through the list
+        # if self.i >= len(self.figures[self.type])-1:
+        #     self.i=0
+        # else:
+        #     self.i+=1
+        # self.rotation = self.i
+
+
+
 
 class Tetris:
     level = 2
@@ -59,6 +68,46 @@ class Tetris:
 
     def go_down(self):
         self.figure.y +=1
+        if self.intersects():
+            self.figure.y-=1
+            self.freeze()
 
     def go_side(self,dir):
+        old_x = self.figure.x
         self.figure.x +=dir
+        if self.intersects():
+            self.figure.x = old_x
+
+    def go_up(self):
+        #self.figure.rotate()
+        self.rotate()
+
+
+
+    def intersects(self):
+        intersection = False
+        for i in range(4):
+            for j in range(4):
+                p=i*4+j
+                if p in self.figure.image():
+                    if i+self.figure.y > self.height -1 or \
+                            j + self.figure.x > self.width-1 or \
+                            j+self.figure.x <0 or \
+                            self.field[i+self.figure.y][j+self.figure.x] >0:
+                        intersection = True
+        return intersection
+
+    def rotate(self):
+        old_rotate = self.figure.rotation
+        self.figure.rotate()
+        if self.intersects(): #if the piece is on the side of game layout and player tries to rotate, this will true
+            self.figure.rotation=old_rotate
+
+
+    def freeze(self):
+        for i in range(4):
+            for j in range(4):
+                c = i * 4 + j
+                if c in self.figure.image():
+                    self.field[i+self.figure.y][j+self.figure.x] = self.figure.color
+        self.new_figure()

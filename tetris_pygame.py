@@ -151,6 +151,9 @@ counter = 0
 pressing_down = False
 
 while not done:
+    for row in game.field:
+        print (row)
+
     if game.figure is None:
         game.new_figure()
     counter += 1
